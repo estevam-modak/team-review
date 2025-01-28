@@ -14,7 +14,7 @@ import { createQueryClient } from "./query-client";
  */
 const createContext = cache(async () => {
   const heads = new Headers(await headers());
-  heads.set("x-trpc-source", "rsc");
+  heads.set("Authorization", `Bearer ${process.env.GITHUB_API_TOKEN}`);
 
   return createTRPCContext({
     headers: heads,
