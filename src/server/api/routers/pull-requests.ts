@@ -83,25 +83,40 @@ export const pullRequestsRouter = createTRPCRouter({
     repo: z.string(),
     number: z.number(),
   })).query(async ({ input }) => {
-    const response = await request<"GET /repos/{owner}/{repo}/pulls/{pull_number}">("GET /repos/{owner}/{repo}/pulls/{pull_number}", {
+    const { data: pr } = await request<"GET /repos/{owner}/{repo}/pulls/{pull_number}">("GET /repos/{owner}/{repo}/pulls/{pull_number}", {
       headers,
       owner: ORG,
       repo: input.repo,
       pull_number: input.number,
     })
-    return response.data
-  }),
 
-  getPullRequestReviews: publicProcedure.input(z.object({
-    repo: z.string(),
-    number: z.number(),
-  })).query(async ({ input }) => {
-    const response = await request<"GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews">("GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
+    const { data: reviews } = await request<"GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews">("GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
       headers,
       owner: ORG,
       repo: input.repo,
       pull_number: input.number,
     })
-    return response.data
+
+
+    const branch = pr.head.ref
+    const team = branch.split("-")[0] ?? ""
+    const task = branch.split("-")[1] ?? ""
+    const taskId = `${team}-${task}`
+    const taskUrl = `https://modaklive.atlassian.net/browse/${taskId}`
+
+    const additional = {
+      taskId,
+      taskUrl,
+    }
+
+    const approvals = reviews.filter(r => r.state === 'APPROVED').map(r => r.user?.login ?? "") ?? []
+    const rejections = reviews.filter(r => r.state === "CHANGES_REQUESTED").map(r => r.user?.login ?? "") ?? []
+
+    return {
+      pr,
+      additional,
+      approvals,
+      rejections,
+    }
   }),
 });
