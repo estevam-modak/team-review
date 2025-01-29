@@ -18,9 +18,31 @@ export default function Home() {
   const mergedPrs = api.pullRequests.getLast5MergedPRs.useQuery({ repos })
 
   useEffect(() => {
+    const storedRepos = localStorage.getItem("repos")
+    const storedRepoColors = localStorage.getItem("repoColors")
+    const storedCurrentUser = localStorage.getItem("currentUser")
+
+    if (storedRepos) setRepos(JSON.parse(storedRepos))
+    if (storedRepoColors) setRepoColors(JSON.parse(storedRepoColors))
+    if (storedCurrentUser) setCurrentUser(storedCurrentUser)
+  }, [])
+
+  useEffect(() => {
     openPrs.refetch()
     mergedPrs.refetch()
   }, [repos])
+
+  useEffect(() => {
+    localStorage.setItem("repos", JSON.stringify(repos))
+  }, [repos])
+
+  useEffect(() => {
+    localStorage.setItem("repoColors", JSON.stringify(repoColors))
+  }, [repoColors])
+
+  useEffect(() => {
+    localStorage.setItem("currentUser", currentUser)
+  }, [currentUser])
 
 
   const drafts = openPrs.data?.filter(pr => pr.draft) || []
