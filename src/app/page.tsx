@@ -5,48 +5,26 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { InlineBadgeListManager } from "~/components/ui/input-badges";
 import { SimpleInput } from "~/components/ui/simple-input";
+import { useReposReducer } from "~/hooks/repos.reducer";
 import { api, RouterOutputs } from "~/trpc/react";
 
 export default function Home() {
-  const [repos, setRepos] = useState<string[]>([])
+  const { repos, addRepo, removeRepo, openPRs, closedPRs, fetchAllPRs, isFetching, updateColor, colors } = useReposReducer()
   const [currentUser, setCurrentUser] = useState<string>("")
-  const [repoColors, setRepoColors] = useState<{
-    [key: string]: string
-  }>({})
-
-  const openPrs = api.pullRequests.getOpenPRs.useQuery({ repos })
-  const mergedPrs = api.pullRequests.getLast5MergedPRs.useQuery({ repos })
 
   useEffect(() => {
-    const storedRepos = localStorage.getItem("repos")
-    const storedRepoColors = localStorage.getItem("repoColors")
     const storedCurrentUser = localStorage.getItem("currentUser")
-
-    if (storedRepos) setRepos(JSON.parse(storedRepos))
-    if (storedRepoColors) setRepoColors(JSON.parse(storedRepoColors))
-    if (storedCurrentUser) setCurrentUser(storedCurrentUser)
+    if (storedCurrentUser) {
+      setCurrentUser(storedCurrentUser)
+    }
   }, [])
-
-  useEffect(() => {
-    openPrs.refetch()
-    mergedPrs.refetch()
-  }, [repos])
-
-  useEffect(() => {
-    localStorage.setItem("repos", JSON.stringify(repos))
-  }, [repos])
-
-  useEffect(() => {
-    localStorage.setItem("repoColors", JSON.stringify(repoColors))
-  }, [repoColors])
 
   useEffect(() => {
     localStorage.setItem("currentUser", currentUser)
   }, [currentUser])
 
-
-  const drafts = openPrs.data?.filter(pr => pr.draft) || []
-  const ready = openPrs.data?.filter(pr => !pr.draft) || []
+  const drafts = openPRs.filter(pr => pr.draft) || []
+  const ready = openPRs.filter(pr => !pr.draft) || []
 
   const today: PullRequest[] = []
   const lastWeek: PullRequest[] = []
@@ -68,24 +46,19 @@ export default function Home() {
     }
   })
 
-  const setColor = (badge: string, color: string) => {
-    setRepoColors({ ...repoColors, [badge]: color })
-  }
-
 
   return (
     <main className="flex min-h-screen flex-col">
       <div className="flex justify-start px-4 py-2 items-center gap-10">
         <Button variant="outline" size="icon"
           onClick={() => {
-            openPrs.refetch()
-            mergedPrs.refetch()
+            fetchAllPRs()
           }}
         >
-          <RefreshCw className={`w-4 h-4 ${openPrs.isFetching || mergedPrs.isFetching ? "animate-spin" : undefined}`} />
+          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : undefined}`} />
         </Button>
         <SimpleInput value={currentUser} setValue={setCurrentUser} label="Username" />
-        <InlineBadgeListManager badges={repos} setBadges={setRepos} colors={repoColors} setColor={setColor} />
+        <InlineBadgeListManager badges={repos} removeBadge={removeRepo} addBadge={addRepo} colors={colors} setColor={updateColor} />
       </div>
 
       <div className="flex flex-col p-4 gap-16 py-16">
@@ -94,13 +67,13 @@ export default function Home() {
           <h2 className="font-bold">Open</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">            
             <div className="flex flex-wrap gap-2 w-full">
-              {today.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {today.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
             <div className="flex flex-wrap gap-2 w-full">
-              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
             <div className="flex flex-wrap gap-2 w-full">
-              {others.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {others.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
           </div>
         </div>
@@ -109,7 +82,7 @@ export default function Home() {
           <h2 className="font-semibold text-sm">✅ Merged Today (last 5 PRs per repo)</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
             <div className="flex flex-wrap gap-2 w-full">
-              {mergedPrs.data?.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {closedPRs.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
           </div>
         </div>
@@ -118,7 +91,7 @@ export default function Home() {
           <h2 className="font-semibold text-sm">🚧 Drafts</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
             <div className="flex flex-wrap gap-2 w-full">
-              {drafts.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {drafts.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
           </div>
         </div>

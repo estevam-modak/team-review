@@ -5,20 +5,20 @@ import { Plus, X } from "lucide-react"
 
 const COLORS = ["bg-red-100", "bg-blue-100", "bg-green-100", "bg-yellow-100", "bg-purple-100", "bg-pink-100", "bg-orange-100", "bg-gray-100"]
 
-export function InlineBadgeListManager({ badges, setBadges, colors, setColor }: { badges: string[], setBadges: (badges: string[]) => void, colors: { [key: string]: string }, setColor: (badge: string, color: string) => void }) {
+export function InlineBadgeListManager({ badges, removeBadge, addBadge, colors, setColor }: { badges: string[], 
+    removeBadge: (badge: string) => void,
+    addBadge: (badge: string, color: string) => void,
+    colors: { [key: string]: string },
+    setColor: (badge: string, color: string) => void
+  }) {
   const [isAdding, setIsAdding] = useState(false)
   const [newBadgeText, setNewBadgeText] = useState("")
 
-  const addBadge = () => {
+  const addNewBadge = () => {
     if (newBadgeText.trim() !== "") {
-      setBadges([...badges, newBadgeText.trim()])
+      addBadge(newBadgeText.trim(), "bg-muted")
       setNewBadgeText("")
     }
-    setIsAdding(false)
-  }
-
-  const removeBadge = (index: number) => {
-    setBadges(badges.filter((_, i) => i !== index))
   }
 
   const nextColor = (badge: string) => {
@@ -33,7 +33,7 @@ export function InlineBadgeListManager({ badges, setBadges, colors, setColor }: 
       {badges.map((badge, index) => (
         <div key={index} className={`text-xs cursor-pointer flex items-center gap-1 h-6 px-2 py-1 rounded-md ${colors[badge] ?? "bg-muted"}`} onClick={() => nextColor(badge)}>
           {badge}
-          <button className="p-0 opacity-50 hover:opacity-100" onClick={() => removeBadge(index)}>
+          <button className="p-0 opacity-50 hover:opacity-100" onClick={() => removeBadge(badge)}>
             <X className="h-3 w-3" />
           </button>
         </div>
@@ -52,7 +52,7 @@ export function InlineBadgeListManager({ badges, setBadges, colors, setColor }: 
             onChange={(e) => setNewBadgeText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                addBadge()
+                addNewBadge()
               } else if (e.key === "Escape") {
                 setIsAdding(false)
               }

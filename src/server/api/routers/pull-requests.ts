@@ -10,6 +10,33 @@ const headers = {
 }
 
 export const pullRequestsRouter = createTRPCRouter({
+  getPRsByRepo: publicProcedure.input(z.object({
+    repo: z.string(),
+  })).query(async ({ input }) => {
+    const {data: open} = await request<"GET /repos/{owner}/{repo}/pulls">("GET /repos/{owner}/{repo}/pulls", {
+      headers,
+      owner: ORG,
+      repo: input.repo,
+      state: 'open',
+      direction: 'desc',
+    })
+
+    const {data: closed} = await request<"GET /repos/{owner}/{repo}/pulls">("GET /repos/{owner}/{repo}/pulls", {
+      headers,
+      owner: ORG,
+      repo: input.repo,
+      state: 'closed',
+      sort: 'created',
+      per_page: 5,
+      direction: 'desc',
+    })
+
+    return {
+      open,
+      closed,
+    }
+  }),
+
   getOpenPRs: publicProcedure.input(z.object({
     repos: z.array(z.string())
   })).query(async ({ input }) => {
