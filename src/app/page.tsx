@@ -7,12 +7,25 @@ import { InlineBadgeListManager } from "~/components/ui/input-badges";
 import { SimpleInput } from "~/components/ui/simple-input";
 import { useReposReducer } from "~/hooks/repos.reducer";
 import { api, RouterOutputs } from "~/trpc/react";
+import { useQueryClient } from '@tanstack/react-query'
+
 
 export default function Home() {
-  const { repos, addRepo, removeRepo, openPRs, closedPRs, fetchAllPRs, isFetching, updateColor, colors } = useReposReducer()
+  const { repos, addRepo, removeRepo, openPRs, closedPRs, updateColor, colors, updateRepoPRs} = useReposReducer()
   const [currentUser, setCurrentUser] = useState<string>("")
 
+  const queryClient = useQueryClient()
+
+  async function fetchOpenPRs() {
+    const prs = await queryClient.fetchQuery({
+      queryKey: ["pullRequests", "getOpenPRs"],
+      queryFn: () => api.pullRequests.getOpenPRs
+    })
+    console.log(prs)
+  }
+
   useEffect(() => {
+    fetchOpenPRs()
     const storedCurrentUser = localStorage.getItem("currentUser")
     if (storedCurrentUser) {
       setCurrentUser(storedCurrentUser)
@@ -22,6 +35,8 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("currentUser", currentUser)
   }, [currentUser])
+
+
 
   const drafts = openPRs.filter(pr => pr.draft) || []
   const ready = openPRs.filter(pr => !pr.draft) || []
@@ -46,19 +61,17 @@ export default function Home() {
     }
   })
 
+  const addNewRepo = (repo: string, color: string) => {
+    addRepo(repo, color)
+    
+  }
 
   return (
     <main className="flex min-h-screen flex-col">
+      {repos.map(repo => <LoadPRs repo={repo} updateRepoPRs={updateRepoPRs} key={repo} />)}
       <div className="flex justify-start px-4 py-2 items-center gap-10">
-        <Button variant="outline" size="icon"
-          onClick={() => {
-            fetchAllPRs()
-          }}
-        >
-          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : undefined}`} />
-        </Button>
         <SimpleInput value={currentUser} setValue={setCurrentUser} label="Username" />
-        <InlineBadgeListManager badges={repos} removeBadge={removeRepo} addBadge={addRepo} colors={colors} setColor={updateColor} />
+        <InlineBadgeListManager badges={repos} removeBadge={removeRepo} addBadge={addNewRepo} colors={colors} setColor={updateColor} />
       </div>
 
       <div className="flex flex-col p-4 gap-16 py-16">
@@ -167,10 +180,24 @@ function PRCard({ pr, color, currentUser, setCurrentUser }: { pr: PullRequest, c
       <div className="flex flex-row justify-between w-full">
         <a href={taskUrl} target="_blank" rel="noopener noreferrer" className="hover:underline text-muted-foreground">{taskId}</a>
         <div className="flex flex-row gap-1 justify-end relative">
-          {(approvals > 0) && <div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iApproved ? "bg-green-700 text-white" : "bg-green-200"}`}>{approvals}</div>}
-          {(rejections > 0) && <div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iRejected ? "bg-red-700 text-white" : "bg-red-200"}`}>{rejections}</div>}
+          {<div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iApproved ? "bg-green-700 text-white" : "bg-green-200"}`}>{approvals}</div>}
+          {<div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iRejected ? "bg-red-700 text-white" : "bg-red-200"}`}>{rejections}</div>}
         </div>
       </div>
     </div>
   </div>
+}
+
+function LoadPRs({ repo, updateRepoPRs }: { repo: string, updateRepoPRs: (repo: string, open: PullRequest[], closed: PullRequest[]) => void }) {
+  const {data: prs} = api.pullRequests.getPRsByRepo.useQuery({
+    repo,
+  })
+
+  useEffect(() => {
+    if (prs) {
+      updateRepoPRs(repo, prs.open, prs.closed)
+    }
+  }, [prs])
+
+  return <></>
 }

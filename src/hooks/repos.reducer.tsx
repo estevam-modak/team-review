@@ -63,38 +63,7 @@ export const useReposReducer = () => {
     });
   };
 
-  const fetchAllPRs = async () => {
-    // setIsFetching(true);
-    // try {
-    //   const results = await Promise.all(
-    //     repos.map(async (repo) => {
-    //       // Use o cliente diretamente com uma chamada assíncrona
-    //       const data = await caller.pullRequests.getPRsByRepo({ repo });
-    //       return { repo, open: data.open, closed: data.closed };
-    //     })
-    //   );
-    //   results.forEach(({ repo, open, closed }) => {
-    //     updateRepoPRs(repo, open, closed);
-    //   });
-    // } catch (error) {
-    //   console.error("Error fetching all PRs:", error);
-    // } finally {
-    //   setIsFetching(false);
-    // }
-  };
-  
-  const fetchPR = async (repo: string) => {
-    // setIsFetching(true);
-    // try {
-    //   const data = await caller.pullRequests.getPRsByRepo({ repo });
-    //   updateRepoPRs(repo, data.open, data.closed);
-    // } catch (error) {
-    //   console.error(`Error fetching PRs for repo ${repo}:`, error);
-    // } finally {
-    //   setIsFetching(false);
-    // }
-  };
-  
+    
   const openPRs = repos
     .flatMap((repo) => reposMap[repo]?.open || [])
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -104,5 +73,5 @@ export const useReposReducer = () => {
 
   const colors = Object.fromEntries(Object.entries(reposMap).map(([repo, { color }]) => [repo, color]));
 
-  return { repos, reposMap, addRepo, removeRepo, openPRs, closedPRs, fetchAllPRs, fetchPR, isFetching, updateColor, colors };
+  return { repos, reposMap, addRepo, removeRepo, openPRs, closedPRs, updateRepoPRs, isFetching, updateColor, colors };
 };
