@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { InlineBadgeListManager } from "~/components/ui/input-badges";
+import { SimpleInput } from "~/components/ui/simple-input";
 import { api, RouterOutputs } from "~/trpc/react";
 
 export default function Home() {
-  const [repos, setRepos] = useState<string[]>(["domain-fintech", "banking"])
-  const [editingRepos, setEditingRepos] = useState<boolean>(false)
+  const [repos, setRepos] = useState<string[]>([])
+  const [currentUser, setCurrentUser] = useState<string>("")
+  const [repoColors, setRepoColors] = useState<{
+    [key: string]: string
+  }>({})
 
   const openPrs = api.pullRequests.getOpenPRs.useQuery({ repos })
   const mergedPrs = api.pullRequests.getLast5MergedPRs.useQuery({ repos })
@@ -18,16 +22,23 @@ export default function Home() {
     mergedPrs.refetch()
   }, [repos])
 
+
+  const drafts = openPrs.data?.filter(pr => pr.draft) || []
+  const ready = openPrs.data?.filter(pr => !pr.draft) || []
+
   const today: PullRequest[] = []
   const lastWeek: PullRequest[] = []
   const others: PullRequest[] = []
 
-  openPrs.data?.forEach(pr => {
+  ready.forEach(pr => {
     const date = new Date(pr.created_at)
-    if (date.toISOString().split("T")[0] === new Date().toISOString().split("T")[0]) {
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+
+    if (diff < 1000 * 60 * 60 * 24) {
       today.push(pr)
     }
-    else if (date >= new Date(new Date().setDate(new Date().getDate() - 7))) {
+    else if (diff < 1000 * 60 * 60 * 24 * 7) {
       lastWeek.push(pr)
     }
     else {
@@ -35,58 +46,62 @@ export default function Home() {
     }
   })
 
+  const setColor = (badge: string, color: string) => {
+    setRepoColors({ ...repoColors, [badge]: color })
+  }
+
 
   return (
     <main className="flex min-h-screen flex-col">
-      <div className="flex justify-start p-4">
-        <InlineBadgeListManager badges={repos} setBadges={setRepos} />
-      </div>
-
-      <div className="flex justify-end p-4">
-        <Button
-          variant="outline"
-          size="icon"
+      <div className="flex justify-start px-4 py-2 items-center gap-10">
+        <Button variant="outline" size="icon"
           onClick={() => {
             openPrs.refetch()
             mergedPrs.refetch()
           }}
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className={`w-4 h-4 ${openPrs.isFetching || mergedPrs.isFetching ? "animate-spin" : undefined}`} />
         </Button>
+        <SimpleInput value={currentUser} setValue={setCurrentUser} label="Username" />
+        <InlineBadgeListManager badges={repos} setBadges={setRepos} colors={repoColors} setColor={setColor} />
       </div>
 
-      <div className="flex flex-col p-4 gap-8">
+      <div className="flex flex-col p-4 gap-16 py-16">
+
         <div className="flex flex-col gap-2">
           <h2 className="font-bold">Open</h2>
-          <div className="flex flex-col gap-2 w-full p-4 border">
-            {openPrs.isFetching && <RefreshCw className="w-4 h-4 animate-spin" />}
-            
-            <h4 className="font-bold text-muted-foreground text-sm font-normal">today</h4>
+          <div className="flex flex-col gap-2 w-full p-4 border bg-muted">            
             <div className="flex flex-wrap gap-2 w-full">
-              {today.map((pr) => <PRCard pr={pr} key={pr.id} />)}
+              {today.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
-
-            <h4 className="font-bold text-muted-foreground text-sm font-normal">last week</h4>
             <div className="flex flex-wrap gap-2 w-full">
-              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} />)}
+              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
-
-            <h4 className="font-bold text-muted-foreground text-sm font-normal">+1w</h4>
             <div className="flex flex-wrap gap-2 w-full">
-              {others.map((pr) => <PRCard pr={pr} key={pr.id} />)}
+              {others.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="font-bold">Merged Today (last 5 per repo)</h2>
-          <div className="flex flex-col gap-2 w-full p-4 border">
-            {mergedPrs.isFetching && <RefreshCw className="w-4 h-4 animate-spin" />}
+          <h2 className="font-semibold text-sm">✅ Merged Today (last 5 PRs per repo)</h2>
+          <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
             <div className="flex flex-wrap gap-2 w-full">
-              {mergedPrs.data?.map((pr) => <PRCard pr={pr} key={pr.id} />)}
+              {mergedPrs.data?.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
             </div>
           </div>
         </div>
+
+        <div className="flex flex-col gap-2">
+          <h2 className="font-semibold text-sm">🚧 Drafts</h2>
+          <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
+            <div className="flex flex-wrap gap-2 w-full">
+              {drafts.map((pr) => <PRCard pr={pr} key={pr.id} color={repoColors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+            </div>
+          </div>
+        </div>
+
+
       </div>
     </main>
   );
@@ -94,7 +109,7 @@ export default function Home() {
 
 type PullRequest = RouterOutputs["pullRequests"]["getOpenPRs"][number]
 
-function PRCard({ pr }: { pr: PullRequest }) {
+function PRCard({ pr, color, currentUser, setCurrentUser }: { pr: PullRequest, color: string | undefined, currentUser: string, setCurrentUser: (user: string) => void }) {
   const status = pr.merged_at ? "merged" : pr.closed_at ? "closed" : pr.draft ? "draft" : "open"
 
   const isOpen = status === "open"
@@ -121,26 +136,45 @@ function PRCard({ pr }: { pr: PullRequest }) {
   const minutes = Math.floor(timeBetween / 1000 / 60) % 60
   const waiting = days > 0 ? `${days}d` : hours > 0 ? `${hours}h` : minutes > 0 ? `${minutes}m` : "now"
 
-  const approvals = reviews.data?.filter(r => r.state === "APPROVED").length
-  const rejections = reviews.data?.filter(r => r.state === "CHANGES_REQUESTED").length
+  const approvals = reviews.data?.filter(r => r.state === 'APPROVED').length || 0
+  const rejections = reviews.data?.filter(r => r.state === "CHANGES_REQUESTED").length || 0
+  const iHaveReviewed = reviews.data?.some(r => {
+    return r.user?.login === currentUser
+  })
 
-  return <div key={pr.id} className={`w-60 border flex flex-col items-start text-xs 
-    ${status === "draft" ? "bg-muted" : undefined}
-  `}>
-    <div className="flex flex-row px-1 py-0.5 w-full bg-gray-100 justify-between items-center border-b">
+  const imRequested = pr.requested_reviewers?.some(r => r.login === currentUser)
+  const itsMine = pr.user?.login === currentUser
+  const highlight = isOpen && (itsMine || iHaveReviewed || imRequested)
+  
+  const iApproved = reviews.data?.find(r => r.state === 'APPROVED' && r.user?.login === currentUser)
+  const iRejected = reviews.data?.find(r => r.state === "CHANGES_REQUESTED" && r.user?.login === currentUser)
+
+  // MBB-999-title
+  const branch = pr.head.ref
+  const team = branch.split("-")[0] ?? ""
+  const task = branch.split("-")[1] ?? ""
+  const taskId = `${team}-${task}`
+  const taskUrl = `https://modaklive.atlassian.net/browse/${taskId}`
+
+  return <div key={pr.id} className={`w-60 border flex flex-col items-start text-xs ${highlight ? "border-black" : undefined} bg-background shadow-sm`}>
+    <div className={`flex flex-row px-1 py-0.5 w-full ${color ? color : "bg-muted"} justify-between items-center border-b`}>
       <a href={pr.head.repo.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline max-w-40 truncate text-blue-900">{pr.head.repo.name}</a>
       <div className="flex flex-row gap-0.5">
-        {(isOpen && (approvals || rejections)) ? <Badge variant='outline' className="text-xs bg-white">+{approvals} -{rejections}</Badge> : undefined}
         <Badge variant='outline' className="text-xs bg-white">{waiting}</Badge>
       </div>
     </div>
-    <div className="flex flex-col p-2 w-full gap-2">
+    <div className={`flex flex-col p-2 w-full gap-2`}>
       <div className="flex justify-between w-full">
-        <div>{pr.user?.login}</div>
-        {isOpen && <div>{info.data?.changed_files} ({info.data?.additions}-{info.data?.deletions})</div>}
+        <div className="text-muted-foreground cursor-pointer" onClick={() => setCurrentUser(pr.user?.login || "")}>{pr.user?.login}</div>
+        {isOpen && <div className="text-muted-foreground">{info.data?.changed_files}📝 {info.data?.additions ? `+${info.data?.additions}` : ""} {info.data?.deletions ? `-${info.data?.deletions}` : ""}</div>}
       </div>
-      <div>
-        <a href={pr.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-900">{pr.title}</a>
+      <div><a href={pr.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-900 font-semibold">{pr.title}</a></div>
+      <div className="flex flex-row justify-between w-full">
+        <a href={taskUrl} target="_blank" rel="noopener noreferrer" className="hover:underline text-muted-foreground">{taskId}</a>
+        <div className="flex flex-row gap-1 justify-end relative">
+          {(approvals > 0) && <div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iApproved ? "bg-green-700 text-white" : "bg-green-200"}`}>{approvals}</div>}
+          {(rejections > 0) && <div className={`text-xs bg-white w-4 h-4 flex items-center justify-center rounded-md ${iRejected ? "bg-red-700 text-white" : "bg-red-200"}`}>{rejections}</div>}
+        </div>
       </div>
     </div>
   </div>
