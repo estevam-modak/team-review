@@ -4,6 +4,7 @@ import { RouterOutputs } from "~/trpc/react";
 type PullRequest = RouterOutputs["pullRequests"]["getOpenPRs"][number];
 
 export const useReposReducer = () => {
+  const [currentUser, setCurrentUser] = React.useState<string>("")
   const [isFetching, setIsFetching] = React.useState(false);
   const [repos, setRepos] = React.useState<string[]>([]);
   const [reposMap, setReposMap] = React.useState<{
@@ -13,6 +14,18 @@ export const useReposReducer = () => {
       closed: PullRequest[];
     };
   }>({});
+
+  React.useEffect(() => {
+    const storedCurrentUser = localStorage.getItem("currentUser")
+    if (storedCurrentUser) {
+      setCurrentUser(storedCurrentUser)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    localStorage.setItem("currentUser", currentUser)
+  }, [currentUser])
+
 
   React.useEffect(() => {
     const storedReposMap = localStorage.getItem("reposMap")
@@ -73,5 +86,5 @@ export const useReposReducer = () => {
 
   const colors = Object.fromEntries(Object.entries(reposMap).map(([repo, { color }]) => [repo, color]));
 
-  return { repos, reposMap, addRepo, removeRepo, openPRs, closedPRs, updateRepoPRs, isFetching, updateColor, colors };
+  return { repos, reposMap, addRepo, removeRepo, openPRs, closedPRs, updateRepoPRs, isFetching, updateColor, colors, currentUser, setCurrentUser };
 };

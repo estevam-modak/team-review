@@ -2,17 +2,14 @@
 import { useEffect, useState } from "react";
 import { SelectRepos } from "~/components/ui/select-repos";
 import { SimpleInput } from "~/components/ui/simple-input";
-import { useReposReducer } from "~/hooks/repos.reducer";
 import { api } from "~/trpc/react";
 import { useQueryClient } from '@tanstack/react-query'
 import { PRCard } from "~/components/ui/pr-card";
 import { PullRequest } from "~/types";
-
-
+import { useRepos } from "~/contexts/repos.context";
 
 export default function Home() {
-  const { repos, addRepo, removeRepo, openPRs, closedPRs, updateColor, colors, updateRepoPRs} = useReposReducer()
-  const [currentUser, setCurrentUser] = useState<string>("")
+  const { repos, addRepo, removeRepo, openPRs, closedPRs, updateColor, colors, updateRepoPRs, currentUser, setCurrentUser } = useRepos();
 
   const queryClient = useQueryClient()
 
@@ -23,20 +20,6 @@ export default function Home() {
     })
     console.log(prs)
   }
-
-  useEffect(() => {
-    fetchOpenPRs()
-    const storedCurrentUser = localStorage.getItem("currentUser")
-    if (storedCurrentUser) {
-      setCurrentUser(storedCurrentUser)
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("currentUser", currentUser)
-  }, [currentUser])
-
-
 
   const drafts = openPRs.filter(pr => pr.draft) || []
   const ready = openPRs.filter(pr => !pr.draft) || []
@@ -61,15 +44,11 @@ export default function Home() {
     }
   })
 
-  const addNewRepo = (repo: string, color: string) => {
-    addRepo(repo, color)
-  }
-
   return (
     <main className="flex min-h-screen flex-col">
       <div className="flex justify-start px-4 py-2 items-center gap-10">
         <SimpleInput value={currentUser} setValue={setCurrentUser} label="Username" />
-        <SelectRepos repos={repos} removeRepo={removeRepo} addRepo={addNewRepo} colors={colors} setColor={updateColor} updateRepoPRs={updateRepoPRs} />
+        <SelectRepos />
       </div>
 
       <div className="flex flex-col p-4 gap-16 py-16">
@@ -78,13 +57,13 @@ export default function Home() {
           <h2 className="font-bold">Open</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">            
             <div className="flex flex-wrap gap-2 w-full">
-              {today.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {today.map((pr) => <PRCard pr={pr} key={pr.id} />)}
             </div>
             <div className="flex flex-wrap gap-2 w-full">
-              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {lastWeek.map((pr) => <PRCard pr={pr} key={pr.id} />)}
             </div>
             <div className="flex flex-wrap gap-2 w-full">
-              {others.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {others.map((pr) => <PRCard pr={pr} key={pr.id} />)}
             </div>
           </div>
         </div>
@@ -93,7 +72,7 @@ export default function Home() {
           <h2 className="font-semibold text-sm">✅ Merged Today (last 5 PRs per repo)</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
             <div className="flex flex-wrap gap-2 w-full">
-              {closedPRs.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {closedPRs.map((pr) => <PRCard pr={pr} key={pr.id} />)}
             </div>
           </div>
         </div>
@@ -102,7 +81,7 @@ export default function Home() {
           <h2 className="font-semibold text-sm">🚧 Drafts</h2>
           <div className="flex flex-col gap-2 w-full p-4 border bg-muted">
             <div className="flex flex-wrap gap-2 w-full">
-              {drafts.map((pr) => <PRCard pr={pr} key={pr.id} color={colors[pr.head.repo.name]} currentUser={currentUser} setCurrentUser={setCurrentUser} />)}
+              {drafts.map((pr) => <PRCard pr={pr} key={pr.id} />)}
             </div>
           </div>
         </div>

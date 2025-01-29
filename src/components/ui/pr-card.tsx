@@ -3,9 +3,14 @@ import * as React from "react"
 import { Badge } from "./badge";
 import { api } from "../../trpc/react";
 import { PullRequest } from "~/types";
+import { useRepos } from "~/contexts/repos.context";
 
 
-export function PRCard({ pr, color, currentUser, setCurrentUser }: { pr: PullRequest, color: string | undefined, currentUser: string, setCurrentUser: (user: string) => void }) {
+export function PRCard({ pr }: { 
+  pr: PullRequest, 
+}) {
+  const { colors, currentUser, setCurrentUser } = useRepos();
+  const color = colors[pr.head.repo.name];
   const status = pr.merged_at ? "merged" : pr.closed_at ? "closed" : pr.draft ? "draft" : "open"
 
   const isOpen = status === "open"
