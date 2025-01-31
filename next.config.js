@@ -1,10 +1,10 @@
 import "./src/env.js";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+export const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
