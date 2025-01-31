@@ -41,7 +41,7 @@ function PRs({ id }: { id: string }) {
 
     const text = isFetching ? "Loading..." : 
         isError ? "Error fetching" : 
-        "Last update at " + new Date(dataUpdatedAt).toLocaleString("en-UK", { hour: '2-digit', minute: '2-digit' })
+        (prs?.length ?? 0) + " at " + new Date(dataUpdatedAt).toLocaleString("en-UK", { hour: '2-digit', minute: '2-digit' })
 
     return <div className="w-full py-3 px-3 flex flex-col gap-3 border rounded-sm min-h-24 bg-background">
         <div className="flex flex-row gap-2 items-center justify-center text-xs text-muted-foreground/50">

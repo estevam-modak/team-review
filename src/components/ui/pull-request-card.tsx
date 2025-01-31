@@ -3,6 +3,7 @@ import * as React from "react"
 import { api } from "../../trpc/react";
 import { PullRequest } from "~/types";
 import { useSession } from "next-auth/react";
+import { useRepos } from "~/contexts/repos.context";
 
 function colorFromState(state: string) {
   if (state === "APPROVED") return "bg-green-500"
@@ -15,8 +16,8 @@ export function PRCard({ pr, repo, org  }: {
   repo: string,
   org: string,
 }) {
+  const { selectedUser } = useRepos()
   const { data: session } = useSession()
-
   const token = session ? (session as unknown as { accessToken: string })?.accessToken : ""
 
   const info = api.pullRequests.getPullRequest.useQuery({
@@ -51,21 +52,42 @@ export function PRCard({ pr, repo, org  }: {
     login,
   }))
 
-  return <div key={pr.id} className={`w-full border flex flex-col items-start text-xs bg-background shadow-sm`}>
+  const isUserRelated = selectedUser === pr.user?.login || reviews.some(r => r.login === selectedUser)
+
+  if (selectedUser !== "" && !isUserRelated) return null
+
+  return <div key={pr.id} className={`w-full border flex flex-col items-start text-xs bg-background shadow-sm text-muted-foreground`}>
     <div className={`flex flex-row px-2 py-0.5 w-full bg-muted justify-between items-center border-b`}>
-      <div className="text-muted-foreground cursor-pointer">{pr.user?.login}</div>
-      <div className="text-muted-foreground cursor-pointer">{waiting}</div>
+      <SelectableUser user={pr.user?.login ?? ""} />
+      <div className="cursor-pointer">{waiting}</div>
     </div>
     <div className={`flex flex-col p-2 w-full gap-2`}>
       <a href={pr.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-900">
         {pr.draft ? "[DRAFT] " : ""}{pr.title}
       </a>
-      <div className="text-muted-foreground">{changes}</div>
-      <div className="flex flex-col gap-1 text-muted-foreground">
+      <div>{changes}</div>
+      <div className="flex flex-col gap-1">
         {reviews.map(r => <div key={r.login} className="text-xs items-center rounded-md flex flex-row gap-1">
-          <div className={`w-2 h-2 rounded-full ${colorFromState(reviewMap[r.login]?.state ?? "PENDING")}`} />{r.login}
+          <div className={`w-2 h-2 rounded-full ${colorFromState(reviewMap[r.login]?.state ?? "PENDING")}`} />
+          <SelectableUser user={r.login} />
         </div>)}
       </div>
     </div>
   </div>
+}
+
+function SelectableUser({ user }: { user: string }) {
+  const { selectedUser, setSelectedUser } = useRepos()
+
+  const isSelected = selectedUser === user
+
+  const click = () => {
+    if (!isSelected) {
+      setSelectedUser(user)
+    } else {
+      setSelectedUser("")
+    }
+  }
+
+  return <div className={`cursor-pointer hover:text-blue-500 ${isSelected ? "text-blue-500 font-semibold" : ""}`} onClick={click}>{user}</div>
 }
