@@ -10,7 +10,6 @@ export const authOptions = {
   ],
   callbacks: {
     async jwt({ token, account, profile }: any) {
-      console.log("jwt", token, account, profile)
       if (account) {
         token.accessToken = account.access_token
         token.login = profile.login
@@ -18,7 +17,6 @@ export const authOptions = {
       return token
     },
     async session({ session, token }: any) {
-      console.log("session", session, token)
       session.accessToken = token.accessToken
       session.user.login = token.login
       return session

@@ -30,11 +30,8 @@ export function ReposProvider({ children }: { children: React.ReactNode }) {
   }
 
   const removeRepo = (id: string) => {
-    console.log("removeRepo", id)
-    console.log("repos", repos)
     if (!repoMap[id]) throw new Error("Repo not found");
     const newRepos = repos.filter(repo => repo !== id);
-    console.log("newRepos", newRepos)
     setRepos([...newRepos]);
     const newMap = Object.fromEntries(Object.entries(repoMap).filter(([key]) => key !== id));
     setRepoMap(newMap);
