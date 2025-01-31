@@ -15,7 +15,6 @@ export function AddRepository() {
     if (org == "" || name == "") return
     const newRepo = uuidv4()
     addRepo(newRepo, name, org)
-    setRepo(org + "/")
   }
 
   return (
