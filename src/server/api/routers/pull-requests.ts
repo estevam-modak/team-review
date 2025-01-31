@@ -58,14 +58,10 @@ export const pullRequestsRouter = createTRPCRouter({
       taskUrl,
     }
 
-    const approvals = reviews.filter(r => r.state === 'APPROVED').map(r => r.user?.login ?? "") ?? []
-    const rejections = reviews.filter(r => r.state === "CHANGES_REQUESTED").map(r => r.user?.login ?? "") ?? []
-
     return {
       pr,
       additional,
-      approvals,
-      rejections,
+      reviews
     }
   }),
 });
