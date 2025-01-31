@@ -6,7 +6,7 @@ import { PRCard } from "./pull-request-card"
 
 
 export function Repository({ id }: { id: string }) {
-    const { repoMap, removeRepo, updateRepoColor } = useRepos()
+    const { repoMap, removeRepo } = useRepos()
     const repo = repoMap[id]
 
     return <div className="w-80 rounded-lg flex-shrink-0">

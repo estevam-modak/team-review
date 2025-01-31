@@ -3,12 +3,11 @@ import { useLocalStorage } from "~/hooks/use-local-storage";
 
 interface ReposContextType {
   repos: string[];
-  repoMap: { [key: string]: { id: string, name: string, org: string, color: string } };
-  addRepo: (id: string, name: string, org: string, color: string) => void;
+  repoMap: { [key: string]: { id: string, name: string, org: string } };
+  addRepo: (id: string, name: string, org: string) => void;
   removeRepo: (id: string) => void;
   updateRepoName: (id: string, name: string) => void;
   updateRepoOrg: (id: string, org: string) => void;
-  updateRepoColor: (id: string, color: string) => void;
 }
 
 const ReposContext = React.createContext<ReposContextType | undefined>(undefined);
@@ -19,12 +18,11 @@ export function ReposProvider({ children }: { children: React.ReactNode }) {
     id: string;
     name: string;
     org: string;
-    color: string;
   } }>("repoMap", {});
 
-  const addRepo = (id: string, name: string, org: string, color: string) => {
+  const addRepo = (id: string, name: string, org: string) => {
     if (repoMap[id]) throw new Error("Repo already exists");
-    const newMap = { ...repoMap, [id]: { id, name, org, color } };
+    const newMap = { ...repoMap, [id]: { id, name, org } };
     setRepoMap(newMap);
     setRepos([...repos, id]);
   }
@@ -49,14 +47,8 @@ export function ReposProvider({ children }: { children: React.ReactNode }) {
     setRepoMap(newMap);
   }
 
-  const updateRepoColor = (id: string, color: string) => {
-    if (!repoMap[id]) throw new Error("Repo not found");
-    const newMap = { ...repoMap, [id]: { ...repoMap[id], color } };
-    setRepoMap(newMap);
-  }
-
   return (
-    <ReposContext.Provider value={{ repos, repoMap, addRepo, removeRepo, updateRepoName, updateRepoOrg, updateRepoColor }}>
+    <ReposContext.Provider value={{ repos, repoMap, addRepo, removeRepo, updateRepoName, updateRepoOrg }}>
       {children}
     </ReposContext.Provider>
   );
