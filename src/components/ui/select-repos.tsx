@@ -61,16 +61,6 @@ function Repo({ repo }: { repo: string }) {
   const { colors, updateColor, removeRepo, updateRepoPRs } = useRepos();
 
   const color = colors[repo] ?? "bg-muted"
-
-  const { data: prs } = api.pullRequests.getPRsByRepo.useQuery({
-    repo: repo,
-  })
-
-  useEffect(() => {
-    if (prs) {
-      updateRepoPRs(repo, prs.open, prs.closed)
-    }
-  }, [prs])
   
   const onClickNextColor = () => {
     const next = nextColor(color)

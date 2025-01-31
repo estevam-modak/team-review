@@ -3,21 +3,28 @@ import * as React from "react"
 import { Badge } from "./badge";
 import { api } from "../../trpc/react";
 import { PullRequest } from "~/types";
-import { useRepos } from "~/contexts/repos.context";
+import { useSession } from "next-auth/react";
 
 
-export function PRCard({ pr }: { 
+export function PRCard({ pr, repo, org  }: { 
   pr: PullRequest, 
+  repo: string,
+  org: string,
 }) {
-  const { colors, currentUser, setCurrentUser } = useRepos();
-  const color = colors[pr.head.repo.name];
+  const { data: session } = useSession()
+
+  const currentUser = session ? (session as unknown as { user: { login: string }, })?.user?.login : ""
+  const token = session ? (session as unknown as { accessToken: string })?.accessToken : ""
+
   const status = pr.merged_at ? "merged" : pr.closed_at ? "closed" : pr.draft ? "draft" : "open"
 
   const isOpen = status === "open"
 
   const info = api.pullRequests.getPullRequest.useQuery({
-    repo: pr.head.repo.name,
     number: pr.number,
+    repo: repo,
+    org: org,
+    token: token || "",
   }, {
     enabled: isOpen,
   })
@@ -42,8 +49,8 @@ export function PRCard({ pr }: {
   const rejections = info.data?.rejections.length || 0
   
 
-  return <div key={pr.id} className={`w-60 border flex flex-col items-start text-xs ${highlight ? "border-black" : undefined} bg-background shadow-sm`}>
-    <div className={`flex flex-row px-1 py-0.5 w-full ${color ? color : "bg-muted"} justify-between items-center border-b`}>
+  return <div key={pr.id} className={`w-full border flex flex-col items-start text-xs ${highlight ? "border-black" : undefined} bg-background shadow-sm`}>
+    <div className={`flex flex-row px-1 py-0.5 w-full bg-muted justify-between items-center border-b`}>
       <a href={pr.head.repo.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline max-w-40 truncate text-blue-900">{pr.head.repo.name}</a>
       <div className="flex flex-row gap-0.5">
         <Badge variant='outline' className="text-xs bg-white">{waiting}</Badge>
@@ -51,7 +58,7 @@ export function PRCard({ pr }: {
     </div>
     <div className={`flex flex-col p-2 w-full gap-2`}>
       <div className="flex justify-between w-full">
-        <div className="text-muted-foreground cursor-pointer" onClick={() => setCurrentUser(pr.user?.login || "")}>{pr.user?.login}</div>
+        <div className="text-muted-foreground cursor-pointer">{pr.user?.login}</div>
         {isOpen && <div className="text-muted-foreground">{info.data?.pr.changed_files}f {info.data?.pr.additions ? `+${info.data?.pr.additions}` : ""} {info.data?.pr.deletions ? `-${info.data?.pr.deletions}` : ""}</div>}
       </div>
       <div><a href={pr.html_url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-900 font-semibold">{pr.title}</a></div>
