@@ -60,12 +60,16 @@ function PRs({ id }: { id: string }) {
     ? "Loading..."
     : isError
       ? "Error fetching"
-      : (prs?.length ?? 0) +
-        " at " +
-        new Date(dataUpdatedAt).toLocaleString("en-UK", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+      : prs
+        ? prs.prs?.length +
+          " of " +
+          prs.totalCount +
+          " at " +
+          new Date(dataUpdatedAt).toLocaleString("en-UK", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Could not fetch";
 
   return (
     <div className="flex min-h-24 w-full flex-col gap-3 rounded-sm border bg-background px-3 py-3">
@@ -73,7 +77,7 @@ function PRs({ id }: { id: string }) {
         {text}
         {!isFetching && (
           <button
-            className="text-muted-foreground opacity-50 hover:text-blue-500 hover:opacity-100"
+            className="text-muted-foreground opacity-50 hover:text-ring hover:opacity-100"
             onClick={() => refetch()}
           >
             <RefreshCw className="size-3" />
@@ -81,12 +85,10 @@ function PRs({ id }: { id: string }) {
         )}
       </div>
       {prs &&
-        prs.map((pr) => (
+        prs.prs.map((pr) => (
           <PRCard
             key={pr.id}
             pr={pr}
-            repo={repo?.name || ""}
-            org={repo?.org || ""}
           />
         ))}
     </div>
