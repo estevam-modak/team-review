@@ -8,8 +8,6 @@ interface ReposContextType {
   removeRepo: (id: string) => void;
   updateRepoName: (id: string, name: string) => void;
   updateRepoOrg: (id: string, org: string) => void;
-  selectedUser: string;
-  setSelectedUser: (user: string) => void;
 }
 
 const ReposContext = React.createContext<ReposContextType | undefined>(
@@ -25,11 +23,6 @@ export function ReposProvider({ children }: { children: React.ReactNode }) {
       org: string;
     };
   }>("repoMap", {});
-
-  const [selectedUser, setSelectedUser] = useLocalStorage<string>(
-    "selectedUser",
-    "",
-  );
 
   const addRepo = (id: string, name: string, org: string) => {
     if (repoMap[id]) throw new Error("Repo already exists");
@@ -69,8 +62,6 @@ export function ReposProvider({ children }: { children: React.ReactNode }) {
         removeRepo,
         updateRepoName,
         updateRepoOrg,
-        selectedUser,
-        setSelectedUser,
       }}
     >
       {children}

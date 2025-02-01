@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useRepos } from "~/contexts/repos.context";
+import { useViewControl } from "~/contexts/view-control.context";
 import { PullRequest } from "~/server/api/routers/pull-requests";
 
 function colorFromState(state: string) {
@@ -9,10 +9,8 @@ function colorFromState(state: string) {
   return "bg-yellow-500";
 }
 
-export function PRCard({ pr }: { pr: PullRequest }) {
-  const { selectedUser } = useRepos();
-
-  const initialDate = new Date(pr.createdAt);
+function waitingLabel(date: string) {
+  const initialDate = new Date(date);
   const finalDate = new Date();
   const timeBetween = finalDate.getTime() - initialDate.getTime();
   const days = Math.floor(timeBetween / 1000 / 60 / 60 / 24);
@@ -26,6 +24,14 @@ export function PRCard({ pr }: { pr: PullRequest }) {
         : minutes > 0
           ? `${minutes}m`
           : "now";
+
+  return waiting;
+}
+
+export function PRCard({ pr }: { pr: PullRequest }) {
+  const { selectedUser } = useViewControl();
+
+  const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}F +${pr.changes.additions} -${pr.changes.deletions}`;
 
   const isUserRelated =
@@ -75,7 +81,7 @@ export function PRCard({ pr }: { pr: PullRequest }) {
 }
 
 function SelectableUser({ user }: { user: string }) {
-  const { selectedUser, setSelectedUser } = useRepos();
+  const { selectedUser, setSelectedUser } = useViewControl();
 
   const isSelected = selectedUser === user;
 

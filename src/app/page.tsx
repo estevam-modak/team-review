@@ -7,8 +7,9 @@ import { Repository } from "~/components/ui/repository";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
-import { Sun } from "lucide-react";
+import { Check, Sun } from "lucide-react";
 import { Moon } from "lucide-react";
+import { ViewControlProvider } from "~/contexts/view-control.context";
 
 export default function Home() {
   const { repos } = useRepos();
@@ -16,16 +17,18 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <Header />
-      <div className="flex flex-grow flex-col bg-muted">
-        <div className="mx-16 my-4 flex w-60">
-          <AddRepository />
+      <ViewControlProvider>
+        <div className="flex flex-grow flex-col w-full">
+          <div className="px-4 py-2 flex  w-full border-b border-b-foreground/10 gap-8 ">
+            <AddRepository />
+          </div>
+          <div className="flex w-full flex-row gap-4 overflow-x-auto px-16 py-8 flex-grow">
+            {repos.map((repo) => (
+              <Repository key={repo} id={repo} />
+            ))}
+          </div>
         </div>
-        <div className="flex w-full flex-row gap-4 overflow-x-auto px-16 py-4">
-          {repos.map((repo) => (
-            <Repository key={repo} id={repo} />
-          ))}
-        </div>
-      </div>
+      </ViewControlProvider>
     </main>
   );
 }
@@ -33,7 +36,11 @@ export default function Home() {
 function Header() {
   return (
     <div className="flex items-center justify-start border-b px-4 py-2">
-      <div className="flex flex-grow items-center justify-start"></div>
+      <div className="flex flex-grow items-center justify-start">
+        <h1 className="text-xs font-semibold text-muted-foreground">
+          TEAM REVIEW
+        </h1>
+      </div>
       <div className="flex items-center justify-end">
         <AuthButton />
         <ThemeToggle />
