@@ -89,7 +89,7 @@ function SelectableUser({ user }: { user: string }) {
 
   return (
     <div
-      className={`cursor-pointer hover:text-hightlight-foreground ${isSelected ? "font-semibold text-hightlight-foreground" : ""}`}
+      className={`cursor-pointer hover:text-primary ${isSelected ? "font-semibold text-primary" : ""}`}
       onClick={click}
     >
       {user}
