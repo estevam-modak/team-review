@@ -29,16 +29,17 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { selectedUser } = useViewControl();
+  const { checkUserIsSelected, hasSelectedUsers } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}F +${pr.changes.additions} -${pr.changes.deletions}`;
 
-  const isUserRelated =
-    selectedUser === pr.user ||
-    pr.reviews.some((r) => r.user === selectedUser);
+  const userSelected = checkUserIsSelected(pr.user);
+  const userReviewed = pr.reviews.some((r) => checkUserIsSelected(r.user));
 
-  if (selectedUser !== "" && !isUserRelated) return null;
+  const isUserRelated = userSelected || userReviewed;
+
+  if (hasSelectedUsers && !isUserRelated) return null;
 
   return (
     <div
@@ -81,21 +82,17 @@ export function PRCard({ pr }: { pr: PullRequest }) {
 }
 
 function SelectableUser({ user }: { user: string }) {
-  const { selectedUser, setSelectedUser } = useViewControl();
+  const { toggleUser, checkUserIsSelected } = useViewControl();
 
-  const isSelected = selectedUser === user;
+  const selected = checkUserIsSelected(user);
 
   const click = () => {
-    if (!isSelected) {
-      setSelectedUser(user);
-    } else {
-      setSelectedUser("");
-    }
+    toggleUser(user);
   };
 
   return (
     <div
-      className={`cursor-pointer hover:text-primary ${isSelected ? "font-semibold text-primary" : ""}`}
+      className={`cursor-pointer hover:text-primary ${selected ? "font-semibold text-primary" : ""}`}
       onClick={click}
     >
       {user}

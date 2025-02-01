@@ -2,8 +2,11 @@ import * as React from "react";
 import { useLocalStorage } from "~/hooks/use-local-storage";
 
 interface ViewControlContextType {
-  selectedUser: string;
-  setSelectedUser: (user: string) => void;
+  toggleUser: (user: string) => void;
+  checkUserIsSelected: (user: string) => boolean;
+  hasSelectedUsers: boolean;
+  hideDrafts: boolean;
+  setHideDrafts: (hideDrafts: boolean) => void;
 }
 
 const ViewControlContext = React.createContext<ViewControlContextType | undefined>(
@@ -11,16 +14,37 @@ const ViewControlContext = React.createContext<ViewControlContextType | undefine
 );
 
 export function ViewControlProvider({ children }: { children: React.ReactNode }) {
-  const [selectedUser, setSelectedUser] = useLocalStorage<string>(
-    "selectedUser",
-    "",
+  const [selectedUsers, setSelectedUsers] = useLocalStorage<string[]>(
+    "selectedUsers",
+    [],
   );
+  const [hideDrafts, setHideDrafts] = useLocalStorage<boolean>(
+    "hideDrafts",
+    false,
+  );
+
+  const toggleUser = (user: string) => {
+    if (selectedUsers.includes(user)) {
+      setSelectedUsers(selectedUsers.filter((u) => u !== user));
+    } else {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+  };
+
+  const checkUserIsSelected = (user: string) => {
+    return selectedUsers.includes(user);
+  };
+
+  const hasSelectedUsers = selectedUsers.length > 0;
 
   return (
     <ViewControlContext.Provider
       value={{
-        selectedUser,
-        setSelectedUser,
+        toggleUser,
+        checkUserIsSelected,
+        hasSelectedUsers,
+        hideDrafts,
+        setHideDrafts,
       }}
     >
       {children}
