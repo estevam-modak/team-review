@@ -96,7 +96,7 @@ export function PRCard({
           rel="noopener noreferrer"
           className="text-secondary-foreground hover:underline"
         >
-          {pr.draft ? "[DRAFT] " : ""}
+          <a className="bg-destructive">{pr.draft ? "DRAFT" : ""}</a>
           {pr.title}
         </a>
         <div>{changes}</div>

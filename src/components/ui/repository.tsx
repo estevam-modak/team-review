@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRepos } from "~/contexts/repos.context";
 import { api } from "~/trpc/react";
 import { RefreshCw, X } from "lucide-react";
-import { PRCard } from "./pull-request-card";
+import { PRCard } from "./pull-request";
 
 export function Repository({ id }: { id: string }) {
   const { repoMap, removeRepo } = useRepos();
@@ -22,7 +22,7 @@ export function Repository({ id }: { id: string }) {
           className="text-muted-foreground opacity-50 hover:text-foreground hover:opacity-100"
           onClick={() => removeRepo(id)}
         >
-          <X className="size-4" />
+          <X className="size-4 hover:text-destructive" />
         </button>
       </div>
       <PRs id={id} />
