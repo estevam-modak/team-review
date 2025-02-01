@@ -5,7 +5,7 @@ import { useRepos } from "~/contexts/repos.context";
 export function AddRepository() {
   const { addRepo } = useRepos();
 
-  const [repo, setRepo] = useState("org/");
+  const [repo, setRepo] = useState("");
 
   const addRepository = () => {
     if (!repo) return;

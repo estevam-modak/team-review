@@ -81,7 +81,7 @@ export function PRCard({
   return (
     <div
       key={pr.id}
-      className={`flex w-full flex-col items-start border bg-background text-xs text-muted-foreground shadow-sm`}
+      className={`flex w-full flex-col items-start border bg-card text-xs text-muted-foreground shadow-sm`}
     >
       <div
         className={`flex w-full flex-row items-center justify-between border-b bg-muted px-2 py-0.5`}
@@ -94,7 +94,7 @@ export function PRCard({
           href={pr.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-900 hover:underline"
+          className="text-secondary-foreground hover:underline"
         >
           {pr.draft ? "[DRAFT] " : ""}
           {pr.title}

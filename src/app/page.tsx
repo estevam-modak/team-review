@@ -4,6 +4,11 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { AddRepository } from "~/components/ui/add-repository";
 import { useRepos } from "~/contexts/repos.context";
 import { Repository } from "~/components/ui/repository";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useTheme } from "next-themes";
+import { Sun } from "lucide-react";
+import { Moon } from "lucide-react";
 
 export default function Home() {
   const { repos } = useRepos();
@@ -31,6 +36,7 @@ function Header() {
       <div className="flex flex-grow items-center justify-start"></div>
       <div className="flex items-center justify-end">
         <AuthButton />
+        <ThemeToggle />
       </div>
     </div>
   );
@@ -59,4 +65,26 @@ function AuthButton() {
       </Button>
     </div>
   );
+}
+
+export function ThemeToggle() {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <Button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      size="icon"
+      variant="outline"
+      className="rounded-md p-2 hover:bg-accent"
+    >
+      {theme === "dark" ? <Sun /> : <Moon />}
+    </Button>
+  ); 
 }
