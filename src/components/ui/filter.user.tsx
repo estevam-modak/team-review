@@ -1,8 +1,8 @@
 "use client";
 import { X } from "lucide-react";
 import * as React from "react";
-import { useViewControl } from "~/contexts/view-control.context";
-import { Switch } from "~/components/ui/switch";
+import { useViewControl } from "../../contexts/view-control.context";
+import { Switch } from "./switch";
 
 export function UserFilter() {
   const [newUser, setNewUser] = React.useState("");
@@ -21,8 +21,8 @@ export function UserFilter() {
       <input
         value={newUser}
         type="text"
-        placeholder="Add user"
-        className="text-xs px-2 py-0.5 rounded-full bg-secondary hover:bg-secondary/50 max-w-24"
+        placeholder="Select user"
+        className="text-xs px-2 py-0.5 rounded-full bg-background hover:bg-secondary/50 max-w-24"
         onChange={(e) => setNewUser(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

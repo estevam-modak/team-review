@@ -30,7 +30,7 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { checkUserIsSelected, hasSelectedUsers, filterByUser } = useViewControl();
+  const { checkUserIsSelected, filterByUser } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}F +${pr.changes.additions} -${pr.changes.deletions}`;
