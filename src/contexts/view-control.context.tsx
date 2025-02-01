@@ -4,9 +4,12 @@ import { useLocalStorage } from "~/hooks/use-local-storage";
 interface ViewControlContextType {
   toggleUser: (user: string) => void;
   checkUserIsSelected: (user: string) => boolean;
+  selectedUsers: string[];
   hasSelectedUsers: boolean;
   hideDrafts: boolean;
   setHideDrafts: (hideDrafts: boolean) => void;
+  filterByUser: boolean;
+  setFilterByUser: (filterByUser: boolean) => void;
 }
 
 const ViewControlContext = React.createContext<ViewControlContextType | undefined>(
@@ -20,6 +23,10 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
   );
   const [hideDrafts, setHideDrafts] = useLocalStorage<boolean>(
     "hideDrafts",
+    false,
+  );
+  const [filterByUser, setFilterByUser] = useLocalStorage<boolean>(
+    "filterByUser",
     false,
   );
 
@@ -45,6 +52,9 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
         hasSelectedUsers,
         hideDrafts,
         setHideDrafts,
+        selectedUsers,
+        filterByUser,
+        setFilterByUser,
       }}
     >
       {children}

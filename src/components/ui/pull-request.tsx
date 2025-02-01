@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useViewControl } from "~/contexts/view-control.context";
 import { PullRequest } from "~/server/api/routers/pull-requests";
+import { SelectableUser } from "./selectable-user";
 
 function colorFromState(state: string) {
   if (state === "APPROVED") return "bg-green-500";
@@ -29,7 +30,7 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { checkUserIsSelected, hasSelectedUsers } = useViewControl();
+  const { checkUserIsSelected, hasSelectedUsers, filterByUser } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}F +${pr.changes.additions} -${pr.changes.deletions}`;
@@ -39,7 +40,7 @@ export function PRCard({ pr }: { pr: PullRequest }) {
 
   const isUserRelated = userSelected || userReviewed;
 
-  if (hasSelectedUsers && !isUserRelated) return null;
+  if (filterByUser && !isUserRelated) return null;
 
   return (
     <div
@@ -77,25 +78,6 @@ export function PRCard({ pr }: { pr: PullRequest }) {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function SelectableUser({ user }: { user: string }) {
-  const { toggleUser, checkUserIsSelected } = useViewControl();
-
-  const selected = checkUserIsSelected(user);
-
-  const click = () => {
-    toggleUser(user);
-  };
-
-  return (
-    <div
-      className={`cursor-pointer hover:text-primary ${selected ? "font-semibold text-primary" : ""}`}
-      onClick={click}
-    >
-      {user}
     </div>
   );
 }
