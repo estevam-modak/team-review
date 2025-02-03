@@ -68,7 +68,7 @@ type RepositoryGraphQL = {
 function mapPullRequest(pr: RepositoryGraphQL["repository"]["pullRequests"]["nodes"][number]): PullRequest {
   
   const reviewsMap = new Map<string, string>();
-  pr.reviewRequests.nodes.forEach((reviewRequest) => {
+  pr.reviewRequests?.nodes?.forEach((reviewRequest) => {
     reviewsMap.set(reviewRequest.requestedReviewer.login, "PENDING");
   });
   pr.latestReviews.nodes.forEach((review) => {
@@ -131,24 +131,6 @@ export const pullRequestsRouter = createTRPCRouter({
                 changedFiles
                 additions
                 deletions
-                reviewRequests(first: 100) {
-                  nodes {
-                    requestedReviewer {
-                      ... on User {
-                        login
-                      }
-                      ... on Team {
-                        name
-                      }
-                      ... on Bot {
-                        login
-                      }
-                      ... on Mannequin {
-                        login
-                      }
-                    }
-                  }
-                }
                 latestReviews(first: 100) {
                   nodes {
                     id
