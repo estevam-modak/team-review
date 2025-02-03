@@ -55,15 +55,17 @@ export function PRCard({ pr }: { pr: PullRequest }) {
         <div className="cursor-pointer">{waiting}</div>
       </div>
       <div className={`flex w-full flex-col gap-2 p-2`}>
-        <a
-          href={pr.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-secondary-foreground hover:underline"
-        >
-          {pr.draft ? "DRAFT " : ""}
-          {pr.title}
-        </a>
+        <h3>
+          {pr.draft && <a className="text-xs text-yellow-700 mr-1">DRAFT</a>}
+          <a
+            href={pr.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-secondary-foreground hover:underline"
+          >
+            {pr.title}
+          </a>
+        </h3>
         <div>{changes}</div>
         <div className="flex flex-col gap-1">
           {pr.reviews.map((r) => (

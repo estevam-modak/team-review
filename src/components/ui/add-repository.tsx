@@ -21,7 +21,7 @@ export function AddRepository() {
   };
 
   return (
-    <div className="flex items-center relative">
+    <div className="flex items-center relative w-72">
       <Input
         id="repo"
         type="text"
