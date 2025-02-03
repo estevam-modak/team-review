@@ -30,7 +30,7 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { checkUserIsSelected, filterByUser } = useViewControl();
+  const { checkUserIsSelected, filterByUser, hideDrafts } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}F +${pr.changes.additions} -${pr.changes.deletions}`;
@@ -41,6 +41,7 @@ export function PRCard({ pr }: { pr: PullRequest }) {
   const isUserRelated = userSelected || userReviewed;
 
   if (filterByUser && !isUserRelated) return null;
+  if (hideDrafts && pr.draft) return null;
 
   return (
     <div
