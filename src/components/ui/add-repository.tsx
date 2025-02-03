@@ -27,6 +27,7 @@ export function AddRepository() {
         type="text"
         placeholder="org/repo"
         value={repo}
+        className="pr-9"
         onChange={(e) => setRepo(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

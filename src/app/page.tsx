@@ -17,8 +17,8 @@ export default function Home() {
         <div className="flex flex-grow flex-col w-full">
           <div className="px-4 py-2 flex  w-full border-b border-b-foreground/10 gap-8 ">
             <AddRepository />
-            <UserFilter />
             <DraftFilter /> 
+            <UserFilter />
           </div>
           <div className="flex w-full flex-row gap-4 overflow-x-auto px-16 py-8 flex-grow">
             {repos.map((repo) => (

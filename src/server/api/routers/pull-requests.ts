@@ -19,6 +19,9 @@ export type PullRequest = {
     user: string;
     state: string;
   }[];
+
+  ticketId?: string;
+  ticketUrl?: string;
 };
 
 type RepositoryGraphQL = {
@@ -32,12 +35,12 @@ type RepositoryGraphQL = {
         url: string;
         state: string;
         createdAt: string;
-
-        isDraft: boolean;
-
         author: {
           login: string;
         };
+
+        headRefName: string;
+        isDraft: boolean;
         
         changedFiles: number;
         additions: number;
