@@ -9,7 +9,7 @@ export function Repository({ id }: { id: string }) {
   const repo = repoMap[id];
 
   return (
-    <div className="w-80 flex-shrink-0 rounded-lg">
+    <div className="w-80 flex-shrink-0 rounded-lg b">
       <div className="flex flex-row items-start justify-between gap-1 p-1 pb-2">
         <a
           href={`https://github.com/${repo?.org}/${repo?.name}`}
@@ -72,7 +72,7 @@ function PRs({ id }: { id: string }) {
         : "Could not fetch";
 
   return (
-    <div className="flex min-h-24 w-full flex-col gap-3 rounded-sm border bg-background px-3 py-3">
+    <div className="flex min-h-24 w-full flex-col gap-3 rounded-sm border bg-muted px-3 py-3">
       <div className="flex flex-row items-center justify-center gap-2 text-xs text-muted-foreground/50">
         {text}
         {!isFetching && (

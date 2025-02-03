@@ -1,0 +1,6 @@
+.card .changes {
+    display: none;
+}
+.card:hover .changes {
+    display: inline;
+}
