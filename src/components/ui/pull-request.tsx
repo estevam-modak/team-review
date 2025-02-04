@@ -31,7 +31,7 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { checkUserIsSelected, filterByUser, hideDrafts } = useViewControl();
+  const { checkUserIsSelected, filterByUser, hideDrafts, hideReady } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}f +${pr.changes.additions} -${pr.changes.deletions}`;
@@ -43,6 +43,7 @@ export function PRCard({ pr }: { pr: PullRequest }) {
 
   if (filterByUser && !isUserRelated) return null;
   if (hideDrafts && pr.draft) return null;
+  if (hideReady && !pr.draft) return null;
 
   return ( 
     <div className={`flex w-full flex-col gap-2 p-2 bg-card text-xs text-muted-foreground border-b-2 rounded-sm border-foreground/10 card`}>

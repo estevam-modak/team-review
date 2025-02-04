@@ -6,8 +6,13 @@ interface ViewControlContextType {
   checkUserIsSelected: (user: string) => boolean;
   selectedUsers: string[];
   hasSelectedUsers: boolean;
+
+  hideReady: boolean;
+  setHideReady: (hideReady: boolean) => void;
+
   hideDrafts: boolean;
   setHideDrafts: (hideDrafts: boolean) => void;
+  
   filterByUser: boolean;
   setFilterByUser: (filterByUser: boolean) => void;
 }
@@ -23,6 +28,10 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
   );
   const [hideDrafts, setHideDrafts] = useLocalStorage<boolean>(
     "hideDrafts",
+    false,
+  );
+  const [hideReady, setHideReady] = useLocalStorage<boolean>(
+    "hideReady",
     false,
   );
   const [filterByUser, setFilterByUser] = useLocalStorage<boolean>(
@@ -52,6 +61,8 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
         hasSelectedUsers,
         hideDrafts,
         setHideDrafts,
+        hideReady,
+        setHideReady,
         selectedUsers,
         filterByUser,
         setFilterByUser,
