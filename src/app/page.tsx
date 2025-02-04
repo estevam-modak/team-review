@@ -5,7 +5,6 @@ import { Repository } from "~/components/ui/repository";
 import { ViewControlProvider } from "~/contexts/view-control.context";
 import { UserFilter } from "~/components/ui/filter.user";
 import { DraftFilter } from "~/components/ui/filter.draft";
-import { ReadyFilter } from "~/components/ui/filter.ready";
 import { Header } from "./header";
 
 export default function Home() {
@@ -20,7 +19,6 @@ export default function Home() {
             <AddRepository />
             <div className="flex gap-2">
               <DraftFilter />
-              <ReadyFilter />
               <UserFilter />
             </div>
           </div>

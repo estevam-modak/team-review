@@ -3,17 +3,17 @@ import * as React from "react";
 import { useViewControl } from "~/contexts/view-control.context";
 
 export function SelectableUser({ user }: { user: string }) {
-  const { toggleUser, checkUserIsSelected } = useViewControl();
+  const { toggleUserState, users } = useViewControl();
 
-  const selected = checkUserIsSelected(user);
+  const selected = users.find((u) => u.name === user)?.desired;
 
   const click = () => {
-    toggleUser(user);
+    toggleUserState(user);
   };
 
   return (
     <div
-      className={`cursor-pointer hover:text-primary ${selected ? "font-semibold text-primary" : ""}`}
+      className={`cursor-pointer hover:font-semibold ${selected === undefined ? "" : selected ? "text-primary" : "text-destructive"}`}
       onClick={click}
     >
       {user}

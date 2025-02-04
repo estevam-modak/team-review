@@ -1,20 +1,28 @@
 import * as React from "react";
 import { useLocalStorage } from "~/hooks/use-local-storage";
 
+export type User = {
+  name: string;
+  desired: boolean;
+}
+
+type StatusFilter = "hide-none" | "hide-drafts" | "hide-ready"
+type UserFilter = "show-all" | "show-only-desired" | "hide-only-undesired"
+
 interface ViewControlContextType {
-  toggleUser: (user: string) => void;
-  checkUserIsSelected: (user: string) => boolean;
-  selectedUsers: string[];
-  hasSelectedUsers: boolean;
+  statusFilter: StatusFilter;
+  setStatusFilter: (statusFilter: StatusFilter) => void;
 
-  hideReady: boolean;
-  setHideReady: (hideReady: boolean) => void;
+  userFilter: UserFilter;
+  setUserFilter: (userFilter: UserFilter) => void;
 
-  hideDrafts: boolean;
-  setHideDrafts: (hideDrafts: boolean) => void;
-  
-  filterByUser: boolean;
-  setFilterByUser: (filterByUser: boolean) => void;
+  users: User[];
+  setUsers: (users: User[]) => void;
+
+  addUser: (userName: string) => void;
+  removeUser: (userName: string) => void;
+  toggleUserDesired: (userName: string) => void;
+  toggleUserState: (userName: string) => void;
 }
 
 const ViewControlContext = React.createContext<ViewControlContextType | undefined>(
@@ -22,50 +30,63 @@ const ViewControlContext = React.createContext<ViewControlContextType | undefine
 );
 
 export function ViewControlProvider({ children }: { children: React.ReactNode }) {
-  const [selectedUsers, setSelectedUsers] = useLocalStorage<string[]>(
-    "selectedUsers",
+  const [statusFilter, setStatusFilter] = useLocalStorage<StatusFilter>(
+    "statusFilter",
+    "hide-none",
+  );
+  const [userFilter, setUserFilter] = useLocalStorage<UserFilter>(
+    "userFilter",
+    "show-all",
+  );
+  const [users, setUsers] = useLocalStorage<User[]>(
+    "users",
     [],
   );
-  const [hideDrafts, setHideDrafts] = useLocalStorage<boolean>(
-    "hideDrafts",
-    false,
-  );
-  const [hideReady, setHideReady] = useLocalStorage<boolean>(
-    "hideReady",
-    false,
-  );
-  const [filterByUser, setFilterByUser] = useLocalStorage<boolean>(
-    "filterByUser",
-    false,
-  );
 
-  const toggleUser = (user: string) => {
-    if (selectedUsers.includes(user)) {
-      setSelectedUsers(selectedUsers.filter((u) => u !== user));
-    } else {
-      setSelectedUsers([...selectedUsers, user]);
+  const addUser = (userName: string) => {
+    setUsers([...users, { name: userName, desired: true }]);
+  };
+
+  const removeUser = (userName: string) => {
+    setUsers(users.filter((u) => u.name !== userName));
+  };
+
+  const toggleUserDesired = (userName: string) => {
+    setUsers(users.map((u) => u.name === userName ? { ...u, desired: !u.desired } : u));
+  };
+
+  const toggleUserState = (userName: string) => {
+    const user = users.find((u) => u.name === userName);
+
+    if (!user) {
+      addUser(userName);
+      return;
     }
-  };
 
-  const checkUserIsSelected = (user: string) => {
-    return selectedUsers.includes(user);
-  };
+    if (user.desired) {
+      toggleUserDesired(userName);
+      return;
+    }
 
-  const hasSelectedUsers = selectedUsers.length > 0;
+    removeUser(userName);
+  };
 
   return (
     <ViewControlContext.Provider
       value={{
-        toggleUser,
-        checkUserIsSelected,
-        hasSelectedUsers,
-        hideDrafts,
-        setHideDrafts,
-        hideReady,
-        setHideReady,
-        selectedUsers,
-        filterByUser,
-        setFilterByUser,
+        statusFilter,
+        setStatusFilter,
+
+        userFilter,
+        setUserFilter,
+        
+        users,
+        setUsers,
+        
+        addUser,
+        removeUser,
+        toggleUserDesired,
+        toggleUserState,
       }}
     >
       {children}

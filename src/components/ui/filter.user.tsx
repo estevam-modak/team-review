@@ -1,28 +1,56 @@
 "use client";
-import { PlusIcon, X } from "lucide-react";
+import { FilterIcon, PlusIcon, X } from "lucide-react";
 import * as React from "react";
-import { useViewControl } from "../../contexts/view-control.context";
-import { Switch } from "./switch";
+import { useViewControl, User as UserType } from "../../contexts/view-control.context";
+import { Button } from "./button";
 
 export function UserFilter() {
-  const { selectedUsers, toggleUser, setFilterByUser, filterByUser } = useViewControl();
+  const { users, setUserFilter, userFilter } = useViewControl();
+
+  const handleButtonClick = () => {
+    switch (userFilter) {
+      case "show-all":
+        setUserFilter("hide-only-undesired");
+        break;
+      case "hide-only-undesired":
+        setUserFilter("show-only-desired");
+        break;
+      case "show-only-desired":
+        setUserFilter("show-all");
+        break;
+    }
+  };
 
   return (
     <div className="flex gap-0.5 text-xs justify-center items-center">
-      <Switch checked={filterByUser} onCheckedChange={setFilterByUser} />
+      <Button variant="outline" onClick={handleButtonClick}>
+        <FilterIcon className={`size-4 ${userFilter === "show-all" ? "" : (
+          userFilter === "show-only-desired" ? "text-primary" : "text-destructive"
+        )}`} />
+      </Button>
       <div className="flex flex-wrap gap-0.5 text-xs justify-start items-center max-w-60">
-        {selectedUsers.map((user) => (
-          <div
-            key={user}
-            className="flex flex-row items-center gap-1 px-2 py-0.5 rounded-full cursor-pointer bg-secondary hover:bg-secondary/90"
-            onClick={() => toggleUser(user)}
-          >
-            {user}
-            <X className="w-3 h-3 text-muted-foreground hover:text-primary" />
-          </div>
+        {users.map((user) => (
+          <User key={user.name} user={user} />
         ))}
         <AddUserButton />
       </div>
+    </div>
+  );
+}
+
+function User({ user }: { user: UserType }) {
+  const { toggleUserDesired, toggleUserState } = useViewControl();
+
+  return (
+    <div
+      className={`flex flex-row items-center gap-1 px-2 py-0.5 rounded-full cursor-pointer  
+        ${user.desired ? 
+          "bg-primary/20 text-primary hover:bg-primary/30" : 
+          "bg-destructive/20 text-destructive hover:bg-destructive/30"}
+      `}
+    >
+      <div onClick={() => toggleUserDesired(user.name)}>{user.name}</div>
+      <X className={`w-3 h-3 ${user.desired ? "text-primary" : "text-destructive"}`} onClick={() => toggleUserState(user.name)}/>
     </div>
   );
 }
@@ -32,14 +60,7 @@ function AddUserButton() {
 
   const [addingUser, setAddingUser] = React.useState(false);
   const [newUser, setNewUser] = React.useState("");
-  const { selectedUsers, toggleUser, setFilterByUser, filterByUser } = useViewControl();
-
-  const addUser = () => {
-    if (newUser && !selectedUsers.includes(newUser) && newUser !== "") {
-      toggleUser(newUser);
-      setNewUser("");
-    }
-  };
+  const { users, addUser } = useViewControl();
 
   React.useEffect(() => {
     if (addingUser) {
@@ -55,11 +76,13 @@ function AddUserButton() {
       type="text"
       onBlur={() => setAddingUser(false)}
       placeholder="Add user"
-      className="text-xs px-2 py-0.5 rounded-full bg-muted max-w-24 outline-none"
+      className="text-xs px-2 py-0.5 rounded-full bg-muted-foreground/20 max-w-24 outline-none text-muted-foreground"
       onChange={(e) => setNewUser(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
-          addUser();
+          addUser(newUser);
+          setAddingUser(false);
+          setNewUser("");
         }
       }}
     />
@@ -68,7 +91,7 @@ function AddUserButton() {
 
   return (
     <button
-      className="text-muted-foreground hover:text-primary w-5 h-5 rounded-full flex items-center justify-center bg-muted"
+      className="text-muted-foreground w-5 h-5 rounded-full flex items-center justify-center bg-muted-foreground/20 hover:bg-muted-foreground/30"
       onClick={() => setAddingUser(true)}
     >
       <PlusIcon className="size-4" />
