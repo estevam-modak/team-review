@@ -1,34 +1,33 @@
 "use client";
-import { FilterIcon, PlusIcon, X } from "lucide-react";
+import { FilterIcon, Italic, PlusIcon, Underline, X } from "lucide-react";
 import * as React from "react";
-import { useViewControl, User as UserType } from "../../contexts/view-control.context";
+import { useViewControl, User as UserType, UserFilter as UserFilterType } from "../../contexts/view-control.context";
 import { Button } from "./button";
+import { ToggleGroup, ToggleGroupItem } from "./toggle.group";
 
 export function UserFilter() {
   const { users, setUserFilter, userFilter } = useViewControl();
 
-  const handleButtonClick = () => {
-    switch (userFilter) {
-      case "show-all":
-        setUserFilter("hide-only-undesired");
-        break;
-      case "hide-only-undesired":
-        setUserFilter("show-only-desired");
-        break;
-      case "show-only-desired":
-        setUserFilter("show-all");
-        break;
+  const handleButtonClick = (value: string) => {
+    console.log(value);
+    if (value === userFilter) {
+      setUserFilter("show-all");
+    } else {
+      setUserFilter(value as UserFilterType);
     }
   };
 
   return (
     <div className="flex gap-0.5 text-xs justify-center items-center">
-      <Button variant="outline" onClick={handleButtonClick}>
-        <FilterIcon className={`size-4 ${userFilter === "show-all" ? "" : (
-          userFilter === "show-only-desired" ? "text-primary" : "text-destructive"
-        )}`} />
-      </Button>
-      <div className="flex flex-wrap gap-0.5 text-xs justify-start items-center max-w-60">
+      <ToggleGroup variant="outline" type="single" size="sm" value={userFilter} onValueChange={handleButtonClick}>
+        <ToggleGroupItem value="show-only-desired" aria-label="Show only desired">
+          Show
+        </ToggleGroupItem>
+        <ToggleGroupItem value="hide-only-undesired" aria-label="Hide only undesired">
+          Hide
+        </ToggleGroupItem>
+      </ToggleGroup>      
+      <div className="flex flex-wrap gap-0.5 text-xs justify-start items-center max-w-80">
         {users.map((user) => (
           <User key={user.name} user={user} />
         ))}
@@ -60,7 +59,7 @@ function AddUserButton() {
 
   const [addingUser, setAddingUser] = React.useState(false);
   const [newUser, setNewUser] = React.useState("");
-  const { users, addUser } = useViewControl();
+  const { addUser } = useViewControl();
 
   React.useEffect(() => {
     if (addingUser) {

@@ -6,8 +6,8 @@ export type User = {
   desired: boolean;
 }
 
-type StatusFilter = "hide-none" | "hide-drafts" | "hide-ready"
-type UserFilter = "show-all" | "show-only-desired" | "hide-only-undesired"
+export type StatusFilter = "hide-none" | "hide-drafts" | "hide-ready"
+export type UserFilter = "show-all" | "show-only-desired" | "hide-only-undesired"
 
 interface ViewControlContextType {
   statusFilter: StatusFilter;
