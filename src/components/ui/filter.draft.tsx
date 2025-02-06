@@ -2,6 +2,8 @@
 import * as React from "react";
 import { useViewControl, StatusFilter as StatusFilterType } from "~/contexts/view-control.context";
 import { ToggleGroup, ToggleGroupItem } from "./toggle.group";
+import { Button } from "./button";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 
 export function DraftFilter() {
   const { statusFilter, setStatusFilter } = useViewControl();
@@ -14,14 +16,19 @@ export function DraftFilter() {
     setStatusFilter(value as StatusFilterType);
   }
 
+  const hideDrafts = statusFilter === "hide-drafts"
+  const hideReady = statusFilter === "hide-ready"
+
   return (
-    <ToggleGroup variant="outline"  type="single" size="sm" value={statusFilter} onValueChange={handlePress}>
-        <ToggleGroupItem value="hide-drafts" aria-label="Show only desired">
-          Drafts
-        </ToggleGroupItem>
-        <ToggleGroupItem value="hide-ready" aria-label="Hide only undesired">
-          Open PRs
-      </ToggleGroupItem>
-    </ToggleGroup> 
+    <div className="flex gap-0.5 text-xs justify-center items-center">
+      <Button variant={hideDrafts ? 'secondary' : "ghost"} size="sm" onClick={() => handlePress("hide-drafts")}>
+        {hideDrafts ? <EyeClosedIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+        Drafts
+      </Button>
+      <Button variant={hideReady ? 'secondary' : "ghost"} size="sm" onClick={() => handlePress("hide-ready")}>
+        {hideReady ? <EyeClosedIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+        Open PRs
+      </Button>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { FilterIcon, Italic, PlusIcon, Underline, X } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, FilterIcon, Italic, PlusIcon, StarIcon, StarOffIcon, Underline, X } from "lucide-react";
 import * as React from "react";
 import { useViewControl, User as UserType, UserFilter as UserFilterType } from "../../contexts/view-control.context";
 import { Button } from "./button";
@@ -17,16 +17,19 @@ export function UserFilter() {
     }
   };
 
+  const showDesired = userFilter === "show-only-desired"
+  const hideUndesired = userFilter === "hide-only-undesired"
+
   return (
     <div className="flex gap-0.5 text-xs justify-center items-center">
-      <ToggleGroup variant="outline" type="single" size="sm" value={userFilter} onValueChange={handleButtonClick}>
-        <ToggleGroupItem value="show-only-desired" aria-label="Show only desired">
-          Show
-        </ToggleGroupItem>
-        <ToggleGroupItem value="hide-only-undesired" aria-label="Hide only undesired">
-          Hide
-        </ToggleGroupItem>
-      </ToggleGroup>      
+      <Button variant={showDesired ? 'secondary' : "ghost"} size="sm" onClick={() => handleButtonClick("show-only-desired")}>
+        {showDesired ? <StarIcon className="w-4 h-4" /> : <StarOffIcon className="w-4 h-4" />}
+        Show
+      </Button>
+      <Button variant={hideUndesired ? 'secondary' : "ghost"} size="sm" onClick={() => handleButtonClick("hide-only-undesired")}>
+        {hideUndesired ? <EyeClosedIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+        Hide
+      </Button>  
       <div className="flex flex-wrap gap-0.5 text-xs justify-start items-center max-w-80">
         {users.map((user) => (
           <User key={user.name} user={user} />
