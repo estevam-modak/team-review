@@ -21,7 +21,8 @@ interface ViewControlContextType {
   users: User[];
   setUsers: (users: User[]) => void;
 
-  addUser: (userName: string) => void;
+  addDesiredUser: (userName: string) => void;
+  addUndesiredUser: (userName: string) => void;
   removeUser: (userName: string) => void;
   toggleUserDesired: (userName: string) => void;
   toggleUserState: (userName: string) => void;
@@ -49,8 +50,12 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
     [],
   );
 
-  const addUser = (userName: string) => {
+  const addDesiredUser = (userName: string) => {
     setUsers([...users, { name: userName, desired: true }]);
+  };
+
+  const addUndesiredUser = (userName: string) => {
+    setUsers([...users, { name: userName, desired: false }]);
   };
 
   const removeUser = (userName: string) => {
@@ -65,7 +70,7 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
     const user = users.find((u) => u.name === userName);
 
     if (!user) {
-      addUser(userName);
+      addDesiredUser(userName);
       return;
     }
 
@@ -92,7 +97,8 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
         users,
         setUsers,
         
-        addUser,
+        addDesiredUser,
+        addUndesiredUser,
         removeUser,
         toggleUserDesired,
         toggleUserState,
