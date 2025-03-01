@@ -1,1 +1,1 @@
-Keep track of PRs from different repositories.
+Keep track of many repos.
