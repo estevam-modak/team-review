@@ -1,7 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useRepos } from "~/contexts/repos.context";
 import { api } from "~/trpc/react";
-import { RefreshCw, X } from "lucide-react";
+import { Loader2, RefreshCw, X } from "lucide-react";
 import { PRCard } from "./pull-request";
 import { PullRequest } from "~/server/api/routers/pull-requests";
 
@@ -36,22 +36,37 @@ export function Repository({ id }: { id: string }) {
     merged.refetch();
   };
 
+  const loading = open.isFetching || merged.isFetching;
+
   return (
     <div className="w-80 flex-shrink-0 rounded-lg b flex flex-col gap-4">
       <div className="flex flex-row items-start justify-between gap-1 p-1">
-        <a
-          href={`https://github.com/${repo?.org}/${repo?.name}`}
-          target="_blank"
-          className="text-sm text-foreground hover:underline"
-        >
-          {repo?.org}/{repo?.name}
-        </a>
+        <div className="flex flex-row items-center gap-1">
+          <button
+            className="text-muted-foreground opacity-50 hover:text-foreground hover:opacity-100"
+            onClick={() => removeRepo(id)}
+          >
+            <X className="size-4 hover:text-destructive" />
+          </button>
+          <a
+            href={`https://github.com/${repo?.org}/${repo?.name}`}
+            target="_blank"
+            className="text-sm text-foreground hover:underline"
+          >
+            {repo?.org}/{repo?.name}
+          </a>
+        </div>
         <button
-          className="text-muted-foreground opacity-50 hover:text-foreground hover:opacity-100"
-          onClick={() => removeRepo(id)}
-        >
-          <X className="size-4 hover:text-destructive" />
-        </button>
+            className="text-muted-foreground opacity-50 hover:text-foreground hover:opacity-100"
+            onClick={refresh}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <RefreshCw className="size-4 hover:text-foreground" />
+            )}
+          </button>
       </div>
       <Open
         ready={open.data?.prs.ready || []}
