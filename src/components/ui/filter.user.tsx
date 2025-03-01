@@ -46,7 +46,7 @@ export function UserFilter() {
 }
 
 function User({ user }: { user: UserType }) {
-  const { toggleUserState } = useViewControl();
+  const { removeUser } = useViewControl();
 
   return (
     <div
@@ -56,7 +56,7 @@ function User({ user }: { user: UserType }) {
           "bg-destructive/20 text-destructive hover:bg-destructive/30"}
       `}
     >
-      <div onClick={() => toggleUserState(user.name)}>{user.name}</div>
+      <div onClick={() => removeUser(user.name)}>{user.name}</div>
     </div>
   );
 }
