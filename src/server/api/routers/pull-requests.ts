@@ -99,7 +99,7 @@ function mapPullRequest(pr: RepositoryGraphQL["repository"]["pullRequests"]["nod
 }
 
 export const pullRequestsRouter = createTRPCRouter({
-  getOpenPRs: publicProcedure
+  getOpen: publicProcedure
     .input(
       z.object({
         repo: z.string(),
@@ -108,7 +108,7 @@ export const pullRequestsRouter = createTRPCRouter({
         page: z.number().optional(),
       }),
     )
-    .query(async ({ input }): Promise<{ prs: PullRequest[], totalCount: number }> => {
+    .query(async ({ input }): Promise<{ prs: { draft: PullRequest[], ready: PullRequest[] }, totalCount: number }> => {
       const graphqlWithAuth = graphql.defaults({
         headers: {
           authorization: `Bearer ${input.token}`,
@@ -155,13 +155,19 @@ export const pullRequestsRouter = createTRPCRouter({
 
       const prs = repository.pullRequests.nodes.map((pr) => mapPullRequest(pr));
 
+      const draft = prs.filter((pr) => pr.draft);
+      const ready = prs.filter((pr) => !pr.draft);
+
       return {
-        prs,
+        prs: {
+          draft,
+          ready,
+        },
         totalCount: repository.pullRequests.totalCount,
       };
   }),
 
-  last5MergedPRs: publicProcedure
+  getMerged: publicProcedure
     .input(
       z.object({
         repo: z.string(),
