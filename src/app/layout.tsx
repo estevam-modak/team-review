@@ -11,6 +11,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable}`}>
+      <head>
+        <link rel="icon" href="/icon.png" />
+      </head>
       <body>
         <ThemeProvider
           attribute="class"
