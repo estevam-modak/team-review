@@ -4,7 +4,7 @@ import { useRepos } from "~/contexts/repos.context";
 import { Repository } from "~/components/ui/repository";
 import { ViewControlProvider } from "~/contexts/view-control.context";
 import { UserFilter } from "~/components/ui/filter.user";
-import { DraftFilter } from "~/components/ui/filter.draft";
+import { StatusFilter } from "~/components/ui/filter.status";
 import { Header } from "./header";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
           <div className="px-4 py-2 flex  w-full border-b border-b-foreground/10 gap-8 ">
             <AddRepository />
             <div className="flex gap-2">
-              <DraftFilter />
+              <StatusFilter />
               <UserFilter />
             </div>
           </div>

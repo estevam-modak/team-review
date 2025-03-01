@@ -82,7 +82,7 @@ function Open({ ready, draft, totalCount }: { ready: PullRequest[], draft: PullR
 
   const text = (ready.length + draft.length) + " of " + totalCount 
   return (
-    <div className="flex min-h-24 w-full flex-col gap-3 rounded-sm border bg-muted px-3 py-3">
+    <div className="flex w-full flex-col gap-3 rounded-sm border bg-muted px-3 py-3">
       <div className="flex flex-row items-center justify-center gap-2 text-xs text-muted-foreground/50">
         {text}
       </div>
@@ -96,7 +96,7 @@ function Open({ ready, draft, totalCount }: { ready: PullRequest[], draft: PullR
       {draft.length > 0 && (
         <div className="flex flex-row items-center justify-center gap-2 text-xs text-muted-foreground/50">
           <div className="h-[1px] flex-1 border-t border-muted-foreground/20 border-dashed"></div>
-          Drafts
+          {draft.length} drafts
           <div className="h-[1px] flex-1 border-t border-muted-foreground/20 border-dashed"></div>
         </div>
       )}
@@ -113,9 +113,9 @@ function Open({ ready, draft, totalCount }: { ready: PullRequest[], draft: PullR
 
 function Merged({ prs }: { prs: PullRequest[] }) {
   return (
-    <div className="flex min-h-24 w-full flex-col gap-3 rounded-sm border bg-muted px-3 py-3">
+    <div className="flex w-full flex-col gap-3 rounded-sm border bg-muted px-3 py-3">
       <div className="flex flex-row items-center justify-center gap-2 text-xs text-muted-foreground/50">
-        Last 5 merged
+        Last {prs.length} merged
       </div>
       {prs.map((pr) => (
         <PRCard

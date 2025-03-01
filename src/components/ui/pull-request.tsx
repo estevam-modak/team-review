@@ -31,7 +31,7 @@ function waitingLabel(date: string) {
 }
 
 export function PRCard({ pr }: { pr: PullRequest }) {
-  const { statusFilter, users, userFilter } = useViewControl();
+  const { hideMerged, hideDrafts, users, userFilter } = useViewControl();
 
   const waiting = waitingLabel(pr.createdAt);
   const changes = `${pr.changes.files}f +${pr.changes.additions} -${pr.changes.deletions}`;
@@ -48,8 +48,8 @@ export function PRCard({ pr }: { pr: PullRequest }) {
     }
   })
 
-  if (statusFilter === "hide-drafts" && pr.draft) return null;
-  if (statusFilter === "hide-ready" && !pr.draft) return null;
+  if (hideDrafts && pr.draft) return null;
+  if (hideMerged && pr.state === "MERGED") return null;
   if (userFilter === "hide-only-undesired" && hasUndesiredUser) return null;
   if (userFilter === "show-only-desired" && !hasDesiredUser) return null;
 

@@ -2,6 +2,8 @@ import { graphql } from "@octokit/graphql";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+type PullRequestState = "OPEN" | "MERGED" | "CLOSED"
+
 export type PullRequest = {
   id: string;
   number: number;
@@ -9,6 +11,7 @@ export type PullRequest = {
   url: string;
   createdAt: string;
   user: string;
+  state: PullRequestState;
   draft: boolean;
   changes: {
     files: number;
@@ -78,6 +81,8 @@ function mapPullRequest(pr: RepositoryGraphQL["repository"]["pullRequests"]["nod
     reviewsMap.set(review.author.login, review.state);
   });
 
+  const state: PullRequestState = pr.state as PullRequestState;
+
   return {
     id: pr.id,
     number: pr.number,
@@ -85,6 +90,7 @@ function mapPullRequest(pr: RepositoryGraphQL["repository"]["pullRequests"]["nod
     url: pr.url,
     createdAt: pr.createdAt,
     user: pr.author.login,
+    state,
     draft: pr.isDraft,
     changes: {
       files: pr.changedFiles,

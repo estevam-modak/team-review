@@ -6,12 +6,14 @@ export type User = {
   desired: boolean;
 }
 
-export type StatusFilter = "hide-none" | "hide-drafts" | "hide-ready"
 export type UserFilter = "show-all" | "show-only-desired" | "hide-only-undesired"
 
 interface ViewControlContextType {
-  statusFilter: StatusFilter;
-  setStatusFilter: (statusFilter: StatusFilter) => void;
+  hideDrafts: boolean;
+  setHideDrafts: (hideDrafts: boolean) => void;
+
+  hideMerged: boolean;
+  setHideMerged: (hideMerged: boolean) => void;
 
   userFilter: UserFilter;
   setUserFilter: (userFilter: UserFilter) => void;
@@ -30,9 +32,13 @@ const ViewControlContext = React.createContext<ViewControlContextType | undefine
 );
 
 export function ViewControlProvider({ children }: { children: React.ReactNode }) {
-  const [statusFilter, setStatusFilter] = useLocalStorage<StatusFilter>(
-    "statusFilter",
-    "hide-none",
+  const [hideDrafts, setHideDrafts] = useLocalStorage<boolean>(
+    "hideDrafts",
+    false,
+  );
+  const [hideMerged, setHideMerged] = useLocalStorage<boolean>(
+    "hideMerged",
+    false,
   );
   const [userFilter, setUserFilter] = useLocalStorage<UserFilter>(
     "userFilter",
@@ -74,8 +80,11 @@ export function ViewControlProvider({ children }: { children: React.ReactNode })
   return (
     <ViewControlContext.Provider
       value={{
-        statusFilter,
-        setStatusFilter,
+        hideDrafts,
+        setHideDrafts,
+
+        hideMerged,
+        setHideMerged,
 
         userFilter,
         setUserFilter,
